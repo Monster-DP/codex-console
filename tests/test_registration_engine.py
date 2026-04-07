@@ -1,10 +1,15 @@
 import base64
 import json
+from contextlib import contextmanager
+from pathlib import Path
 
 from src.config.constants import EmailServiceType, OPENAI_API_ENDPOINTS, OPENAI_PAGE_TYPES
 from src.core.http_client import OpenAIHTTPClient
+from src.core import register as register_module
 from src.core.openai.oauth import OAuthStart
-from src.core.register import RegistrationEngine
+from src.core.register import RegistrationEngine, RegistrationResult
+from src.database.models import Base, Account
+from src.database.session import DatabaseSessionManager
 from src.services.base import BaseEmailService
 
 
@@ -294,3 +299,128 @@ def test_existing_account_login_uses_auto_sent_otp_without_manual_send():
     assert len(email_service.otp_requests) == 1
     assert email_service.otp_requests[0]["otp_sent_at"] is not None
     assert result.metadata["token_acquired_via_relogin"] is False
+
+
+def test_native_backup_prefers_cached_create_account_continue_url_over_oauth_start(monkeypatch):
+    engine = RegistrationEngine(FakeEmailService([]))
+    engine.oauth_start = OAuthStart(
+        auth_url="https://auth.openai.com/oauth/authorize?client_id=test-client",
+        state="state-1",
+        code_verifier="verifier-1",
+        redirect_uri="http://localhost:1455/auth/callback",
+    )
+    engine._last_validate_otp_continue_url = "https://auth.openai.com/add-phone"
+    engine._create_account_continue_url = "https://auth.openai.com/sign-in-with-chatgpt/codex/consent?prompt=consent"
+
+    followed = {}
+
+    monkeypatch.setattr(engine, "_verify_email_otp_with_retry", lambda **kwargs: True)
+    monkeypatch.setattr(engine, "_get_workspace_id", lambda: "")
+    monkeypatch.setattr(engine, "_capture_auth_session_tokens", lambda result, access_hint=None: False)
+    def fake_follow_redirects(start_url):
+        followed["start_url"] = start_url
+        return None, "https://auth.openai.com/log-in"
+
+    monkeypatch.setattr(engine, "_follow_redirects", fake_follow_redirects)
+
+    result = RegistrationResult(success=False, email="tester@example.com")
+
+    ok = engine._complete_token_exchange_native_backup(result)
+
+    assert ok is False
+    assert result.error_message == "跟随重定向链失败"
+    assert followed["start_url"] == engine._create_account_continue_url
+
+
+def test_native_backup_reports_add_phone_gate_and_marks_partial_result(monkeypatch):
+    engine = RegistrationEngine(FakeEmailService([]))
+    engine.email = "tester@example.com"
+    engine.password = "Secret123!"
+    engine.device_id = "did-1"
+    engine.oauth_start = OAuthStart(
+        auth_url="https://auth.openai.com/oauth/authorize?client_id=test-client",
+        state="state-1",
+        code_verifier="verifier-1",
+        redirect_uri="http://localhost:1455/auth/callback",
+    )
+    engine._last_validate_otp_continue_url = "https://auth.openai.com/add-phone"
+    engine._create_account_continue_url = "https://auth.openai.com/add-phone"
+    engine._create_account_workspace_id = "ws-created"
+    engine._create_account_refresh_token = "refresh-created"
+    engine._create_account_account_id = ""
+    engine._create_account_succeeded = True
+
+    monkeypatch.setattr(engine, "_verify_email_otp_with_retry", lambda **kwargs: True)
+    monkeypatch.setattr(engine, "_get_workspace_id", lambda: "")
+    monkeypatch.setattr(engine, "_capture_auth_session_tokens", lambda result, access_hint=None: False)
+    monkeypatch.setattr(engine, "_follow_redirects", lambda start_url: (None, "https://auth.openai.com/log-in"))
+
+    result = RegistrationResult(success=False, email="tester@example.com")
+
+    ok = engine._complete_token_exchange_native_backup(result)
+
+    assert ok is False
+    assert result.error_message == "命中 add-phone 风控页，账号已创建但需人工补手机验证"
+    assert result.password == "Secret123!"
+    assert result.device_id == "did-1"
+    assert result.account_id == ""
+    assert result.workspace_id == "ws-created"
+    assert result.refresh_token == "refresh-created"
+    assert result.metadata["registration_gate"] == "add-phone"
+    assert result.metadata["manual_action_required"] is True
+    assert result.metadata["persist_account_on_failure"] is True
+
+
+def test_save_to_database_persists_partial_failed_registration(monkeypatch, tmp_path):
+    db_path = Path(tmp_path) / "partial-register.db"
+    manager = DatabaseSessionManager(f"sqlite:///{db_path}")
+    Base.metadata.create_all(bind=manager.engine)
+
+    @contextmanager
+    def fake_get_db():
+        session = manager.SessionLocal()
+        try:
+            yield session
+        finally:
+            session.close()
+
+    monkeypatch.setattr(register_module, "get_db", fake_get_db)
+
+    engine = RegistrationEngine(FakeEmailService([]))
+    engine.email_info = {"service_id": "mailbox-1"}
+    engine._dump_session_cookies = lambda: "foo=bar"
+
+    result = RegistrationResult(
+        success=False,
+        email="tester@example.com",
+        password="Secret123!",
+        account_id="acct-created",
+        workspace_id="ws-created",
+        refresh_token="refresh-created",
+        device_id="did-1",
+        error_message="命中 add-phone 风控页，账号已创建但需人工补手机验证",
+        metadata={
+            "persist_account_on_failure": True,
+            "registration_gate": "add-phone",
+            "manual_action_required": True,
+        },
+    )
+
+    saved = engine.save_to_database(result)
+
+    assert saved is True
+
+    session = manager.SessionLocal()
+    try:
+        account = session.query(Account).filter_by(email="tester@example.com").one()
+        assert account.status == "failed"
+        assert account.password == "Secret123!"
+        assert account.account_id == "acct-created"
+        assert account.workspace_id == "ws-created"
+        assert account.refresh_token == "refresh-created"
+        assert account.cookies == "foo=bar"
+        assert account.extra_data["registration_gate"] == "add-phone"
+        assert account.extra_data["manual_action_required"] is True
+        assert account.extra_data["last_error"] == "命中 add-phone 风控页，账号已创建但需人工补手机验证"
+    finally:
+        session.close()

@@ -4,7 +4,7 @@
 
 // 状态
 let outlookServices = [];
-let customServices = [];  // 合并 moe_mail + temp_mail + cloudmail + duck_mail + freemail + imap_mail
+let customServices = [];  // 合并 moe_mail + temp_mail + cloudmail + duck_mail + luckmail + vmail + freemail + imap_mail
 let selectedOutlook = new Set();
 let selectedCustom = new Set();
 
@@ -59,6 +59,7 @@ const elements = {
     addTempmailFields: document.getElementById('add-tempmail-fields'),
     addDuckmailFields: document.getElementById('add-duckmail-fields'),
     addLuckmailFields: document.getElementById('add-luckmail-fields'),
+    addVmailFields: document.getElementById('add-vmail-fields'),
     addFreemailFields: document.getElementById('add-freemail-fields'),
     addCloudmailFields: document.getElementById('add-cloudmail-fields'),
     addImapFields: document.getElementById('add-imap-fields'),
@@ -74,6 +75,7 @@ const elements = {
     editTempmailFields: document.getElementById('edit-tempmail-fields'),
     editDuckmailFields: document.getElementById('edit-duckmail-fields'),
     editLuckmailFields: document.getElementById('edit-luckmail-fields'),
+    editVmailFields: document.getElementById('edit-vmail-fields'),
     editFreemailFields: document.getElementById('edit-freemail-fields'),
     editCloudmailFields: document.getElementById('edit-cloudmail-fields'),
     editImapFields: document.getElementById('edit-imap-fields'),
@@ -95,6 +97,7 @@ const CUSTOM_SUBTYPE_LABELS = {
     cloudmail: '☁️ CloudMail（自部署 Cloudflare Worker）',
     duckmail: '🦆 DuckMail（DuckMail API）',
     luckmail: 'LuckMail（接码平台）',
+    vmail: 'Vmail（Vmail.dev API）',
     freemail: 'Freemail（自部署 Cloudflare Worker）',
     imap: '📧 IMAP 邮箱（Gmail/QQ/163等）'
 };
@@ -205,6 +208,7 @@ function switchAddSubType(subType) {
     elements.addTempmailFields.style.display = subType === 'tempmail' ? '' : 'none';
     elements.addDuckmailFields.style.display = subType === 'duckmail' ? '' : 'none';
     elements.addLuckmailFields.style.display = subType === 'luckmail' ? '' : 'none';
+    elements.addVmailFields.style.display = subType === 'vmail' ? '' : 'none';
     elements.addFreemailFields.style.display = subType === 'freemail' ? '' : 'none';
     elements.addCloudmailFields.style.display = subType === 'cloudmail' ? '' : 'none';
     elements.addImapFields.style.display = subType === 'imap' ? '' : 'none';
@@ -219,6 +223,7 @@ function switchEditSubType(subType) {
     elements.editTempmailFields.style.display = subType === 'tempmail'  ? '' : 'none';
     elements.editDuckmailFields.style.display = subType === 'duckmail' ? '' : 'none';
     elements.editLuckmailFields.style.display = subType === 'luckmail' ? '' : 'none';
+    elements.editVmailFields.style.display = subType === 'vmail' ? '' : 'none';
     elements.editFreemailFields.style.display = subType === 'freemail' ? '' : 'none';
     elements.editCloudmailFields.style.display = subType === 'cloudmail' ? '' : 'none';
     elements.editImapFields.style.display = subType === 'imap' ? '' : 'none';
@@ -230,7 +235,7 @@ async function loadStats() {
     try {
         const data = await api.get('/email-services/stats');
         elements.outlookCount.textContent = data.outlook_count || 0;
-        elements.customCount.textContent = (data.custom_count || 0) + (data.tempmail_builtin_count || 0) + (data.yyds_mail_count || 0) + (data.temp_mail_count || 0) + (data.cloudmail_count || 0) + (data.duck_mail_count || 0) + (data.luckmail_count || 0) + (data.freemail_count || 0) + (data.imap_mail_count || 0);
+        elements.customCount.textContent = (data.custom_count || 0) + (data.tempmail_builtin_count || 0) + (data.yyds_mail_count || 0) + (data.temp_mail_count || 0) + (data.cloudmail_count || 0) + (data.duck_mail_count || 0) + (data.luckmail_count || 0) + (data.vmail_count || 0) + (data.freemail_count || 0) + (data.imap_mail_count || 0);
         elements.tempmailStatus.textContent = data.tempmail_available ? '可用' : '不可用';
         elements.totalEnabled.textContent = data.enabled_count || 0;
     } catch (error) {
@@ -341,6 +346,9 @@ function getCustomServiceTypeBadge(subType) {
     if (subType === 'luckmail') {
         return '<span class="status-badge" style="background-color:#f57c00;color:white;">LuckMail</span>';
     }
+    if (subType === 'vmail') {
+        return '<span class="status-badge" style="background-color:#00695c;color:white;">Vmail</span>';
+    }
     if (subType === 'freemail') {
         return '<span class="status-badge" style="background-color:#9c27b0;color:white;">Freemail</span>';
     }
@@ -375,6 +383,15 @@ function getCustomServiceAddress(service) {
             : `项目：${escapeHtml(projectCode)}`;
         return `${escapeHtml(baseUrl)}<div style="color: var(--text-muted); margin-top: 4px;">${detail}</div>`;
     }
+    if (service._subType === 'vmail') {
+        const baseUrl = service.config?.base_url || '-';
+        const domain = service.config?.default_domain || '';
+        const expiresIn = service.config?.expires_in || 86400;
+        const detail = domain
+            ? `默认域名：@${escapeHtml(domain)} / 过期：${escapeHtml(String(expiresIn))} 秒`
+            : `过期：${escapeHtml(String(expiresIn))} 秒`;
+        return `${escapeHtml(baseUrl)}<div style="color: var(--text-muted); margin-top: 4px;">${detail}</div>`;
+    }
     const baseUrl = service.config?.base_url || '-';
     const domain = service.config?.default_domain || service.config?.domain;
     if (!domain) {
@@ -386,7 +403,7 @@ function getCustomServiceAddress(service) {
 // 加载自定义邮箱服务（moe_mail + temp_mail + cloudmail + duck_mail + freemail + imap_mail 合并）
 async function loadCustomServices() {
     try {
-        const [r1, r2, r3, r4, r5, r6, r7, r8, r9] = await Promise.all([
+        const [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10] = await Promise.all([
             api.get('/email-services?service_type=moe_mail'),
             api.get('/email-services?service_type=tempmail'),
             api.get('/email-services?service_type=yyds_mail'),
@@ -394,6 +411,7 @@ async function loadCustomServices() {
             api.get('/email-services?service_type=cloudmail'),
             api.get('/email-services?service_type=duck_mail'),
             api.get('/email-services?service_type=luckmail'),
+            api.get('/email-services?service_type=vmail'),
             api.get('/email-services?service_type=freemail'),
             api.get('/email-services?service_type=imap_mail')
         ]);
@@ -405,8 +423,9 @@ async function loadCustomServices() {
             ...(r5.services || []).map(s => ({ ...s, _subType: 'cloudmail' })),
             ...(r6.services || []).map(s => ({ ...s, _subType: 'duckmail' })),
             ...(r7.services || []).map(s => ({ ...s, _subType: 'luckmail' })),
-            ...(r8.services || []).map(s => ({ ...s, _subType: 'freemail' })),
-            ...(r9.services || []).map(s => ({ ...s, _subType: 'imap' }))
+            ...(r8.services || []).map(s => ({ ...s, _subType: 'vmail' })),
+            ...(r9.services || []).map(s => ({ ...s, _subType: 'freemail' })),
+            ...(r10.services || []).map(s => ({ ...s, _subType: 'imap' }))
         ];
 
         if (customServices.length === 0) {
@@ -577,6 +596,17 @@ async function handleAddCustom(e) {
             email_type: formData.get('lm_email_type') || 'ms_graph',
             preferred_domain: formData.get('lm_preferred_domain')
         };
+    } else if (subType === 'vmail') {
+        serviceType = 'vmail';
+        config = {
+            base_url: formData.get('vm_base_url'),
+            api_key: formData.get('vm_api_key'),
+            default_domain: formData.get('vm_default_domain'),
+            expires_in: parseInt(formData.get('vm_expires_in'), 10) || 86400,
+            timeout: parseInt(formData.get('vm_timeout'), 10) || 30,
+            max_retries: parseInt(formData.get('vm_max_retries'), 10) || 3,
+            poll_interval: parseInt(formData.get('vm_poll_interval'), 10) || 3
+        };
     } else if (subType === 'freemail') {
         serviceType = 'freemail';
         config = {
@@ -650,7 +680,7 @@ async function testService(id) {
     try {
         const result = await api.post(`/email-services/${id}/test`);
         if (result.success) toast.success('测试成功');
-        else toast.error('测试失败: ' + (result.error || '未知错误'));
+        else toast.error('测试失败: ' + (result.error || result.message || '未知错误'));
     } catch (error) {
         toast.error('测试失败: ' + error.message);
     }
@@ -789,6 +819,8 @@ async function editCustomService(id, subType) {
                     ? 'duckmail'
                     : service.service_type === 'luckmail'
                         ? 'luckmail'
+                    : service.service_type === 'vmail'
+                        ? 'vmail'
                     : service.service_type === 'freemail'
                         ? 'freemail'
                         : service.service_type === 'imap_mail'
@@ -837,6 +869,15 @@ async function editCustomService(id, subType) {
             document.getElementById('edit-lm-project-code').value = service.config?.project_code || 'openai';
             document.getElementById('edit-lm-email-type').value = service.config?.email_type || 'ms_graph';
             document.getElementById('edit-lm-preferred-domain').value = service.config?.preferred_domain || '';
+        } else if (resolvedSubType === 'vmail') {
+            document.getElementById('edit-vm-base-url').value = service.config?.base_url || 'https://vmail.dev/api/v1';
+            document.getElementById('edit-vm-api-key').value = '';
+            document.getElementById('edit-vm-api-key').placeholder = service.config?.api_key ? '已设置，留空保持不变' : '请输入 API Key';
+            document.getElementById('edit-vm-default-domain').value = service.config?.default_domain || '';
+            document.getElementById('edit-vm-expires-in').value = service.config?.expires_in || 86400;
+            document.getElementById('edit-vm-timeout').value = service.config?.timeout || 30;
+            document.getElementById('edit-vm-max-retries').value = service.config?.max_retries || 3;
+            document.getElementById('edit-vm-poll-interval').value = service.config?.poll_interval || 3;
         } else if (resolvedSubType === 'freemail') {
             document.getElementById('edit-fm-base-url').value = service.config?.base_url || '';
             document.getElementById('edit-fm-admin-token').value = '';
@@ -920,6 +961,17 @@ async function handleEditCustom(e) {
             preferred_domain: formData.get('lm_preferred_domain')
         };
         const apiKey = formData.get('lm_api_key');
+        if (apiKey && apiKey.trim()) config.api_key = apiKey.trim();
+    } else if (subType === 'vmail') {
+        config = {
+            base_url: formData.get('vm_base_url'),
+            default_domain: formData.get('vm_default_domain'),
+            expires_in: parseInt(formData.get('vm_expires_in'), 10) || 86400,
+            timeout: parseInt(formData.get('vm_timeout'), 10) || 30,
+            max_retries: parseInt(formData.get('vm_max_retries'), 10) || 3,
+            poll_interval: parseInt(formData.get('vm_poll_interval'), 10) || 3
+        };
+        const apiKey = formData.get('vm_api_key');
         if (apiKey && apiKey.trim()) config.api_key = apiKey.trim();
     } else if (subType === 'freemail') {
         config = {

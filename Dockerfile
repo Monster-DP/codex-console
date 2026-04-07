@@ -19,7 +19,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # 安装系统依赖
 # (curl_cffi 等库可能需要编译工具)
-RUN apt-get update \
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources || sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list || true \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         gcc \
         python3-dev \
@@ -33,8 +34,9 @@ RUN apt-get update \
 
 # 复制依赖文件并安装
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
+ARG PIP_INDEX_URL=https://pypi.org/simple
+RUN pip install --no-cache-dir --upgrade pip -i "${PIP_INDEX_URL}" \
+    && pip install --no-cache-dir -r requirements.txt -i "${PIP_INDEX_URL}" \
     && python -m playwright install --with-deps chromium
 
 # 复制项目代码

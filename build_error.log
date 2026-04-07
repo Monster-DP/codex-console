@@ -1,0 +1,460 @@
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+time="2026-04-03T21:54:43+08:00" level=warning msg="D:\\Mix\\code\\python\\codex-console\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Image codex-console-webui Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 533B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.61kB 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-slim
+#3 DONE 5.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/8] FROM docker.io/library/python:3.11-slim@sha256:9358444059ed78e2975ada2c189f1c1a3144a5dab6f35bff8c981afb38946634
+#5 resolve docker.io/library/python:3.11-slim@sha256:9358444059ed78e2975ada2c189f1c1a3144a5dab6f35bff8c981afb38946634 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 11.58kB 0.0s done
+#6 DONE 0.0s
+
+#7 [3/8] RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources || sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list || true     && apt-get update     && apt-get install -y --no-install-recommends         gcc         python3-dev         xvfb         fluxbox         x11vnc         websockify         novnc         ca-certificates     && rm -rf /var/lib/apt/lists/*
+#7 CACHED
+
+#8 [2/8] WORKDIR /app
+#8 CACHED
+
+#9 [4/8] COPY requirements.txt .
+#9 CACHED
+
+#10 [5/8] RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple     && pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple     && env PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/ python -m playwright install --with-deps chromium
+#10 1.614 Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+#10 1.617 Requirement already satisfied: pip in /usr/local/lib/python3.11/site-packages (24.0)
+#10 1.973 Collecting pip
+#10 2.026   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/de/f0/c81e05b613866b76d2d1066490adf1a3dbc4ee9d9c839961c3fc8a6997af/pip-26.0.1-py3-none-any.whl (1.8 MB)
+#10 2.206      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 10.1 MB/s eta 0:00:00
+#10 2.265 Installing collected packages: pip
+#10 2.265   Attempting uninstall: pip
+#10 2.269     Found existing installation: pip 24.0
+#10 2.301     Uninstalling pip-24.0:
+#10 2.440       Successfully uninstalled pip-24.0
+#10 3.249 Successfully installed pip-26.0.1
+#10 3.249 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#10 4.498 Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+#10 4.777 Collecting certifi>=2024.0.0 (from -r requirements.txt (line 1))
+#10 4.841   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/9a/3c/c17fb3ca2d9c3acff52e30b309f538586f9f5b9c9cf454f3845fc9af4881/certifi-2026.2.25-py3-none-any.whl (153 kB)
+#10 5.223 Collecting cffi>=1.16.0 (from -r requirements.txt (line 2))
+#10 5.279   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d7/91/500d892b2bf36529a75b77958edfcd5ad8e2ce4064ce2ecfeab2125d72d1/cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (215 kB)
+#10 5.407 Collecting curl_cffi>=0.14.0 (from -r requirements.txt (line 3))
+#10 5.465   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/5c/12/c70b835487ace3b9ba1502631912e3440082b8ae3a162f60b59cb0b6444d/curl_cffi-0.15.0-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (11.1 MB)
+#10 6.072      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.1/11.1 MB 18.2 MB/s  0:00:00
+#10 6.141 Collecting pycparser>=1.21 (from -r requirements.txt (line 4))
+#10 6.191   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl (48 kB)
+#10 6.401 Collecting pydantic>=2.0.0 (from -r requirements.txt (line 5))
+#10 6.461   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/5a/87/b70ad306ebb6f9b585f114d0ac2137d792b48be34d732d60e597c2f8465a/pydantic-2.12.5-py3-none-any.whl (463 kB)
+#10 6.547 Collecting pydantic-settings>=2.0.0 (from -r requirements.txt (line 6))
+#10 6.600   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/00/4b/ccc026168948fec4f7555b9164c724cf4125eac006e176541483d2c959be/pydantic_settings-2.13.1-py3-none-any.whl (58 kB)
+#10 6.703 Collecting fastapi>=0.100.0 (from -r requirements.txt (line 7))
+#10 6.759   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/84/a4/5caa2de7f917a04ada20018eccf60d6cc6145b0199d55ca3711b0fc08312/fastapi-0.135.3-py3-none-any.whl (117 kB)
+#10 6.834 Collecting uvicorn>=0.23.0 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 6.891   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0a/89/f8827ccff89c1586027a105e5630ff6139a64da2515e24dafe860bd9ae4d/uvicorn-0.42.0-py3-none-any.whl (68 kB)
+#10 6.956 Collecting jinja2>=3.1.0 (from -r requirements.txt (line 9))
+#10 7.014   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl (134 kB)
+#10 7.081 Collecting python-multipart>=0.0.6 (from -r requirements.txt (line 10))
+#10 7.134   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1b/d0/397f9626e711ff749a95d96b7af99b9c566a9bb5129b8e4c10fc4d100304/python_multipart-0.0.22-py3-none-any.whl (24 kB)
+#10 7.667 Collecting sqlalchemy>=2.0.0 (from -r requirements.txt (line 11))
+#10 7.723   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/21/dd/3b7c53f1dbbf736fd27041aee68f8ac52226b610f914085b1652c2323442/sqlalchemy-2.0.48-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.3 MB)
+#10 7.951      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 14.3 MB/s  0:00:00
+#10 8.040 Collecting alembic>=1.13.0 (from -r requirements.txt (line 12))
+#10 8.096   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d2/29/6533c317b74f707ea28f8d633734dbda2119bbadfc61b2f3640ba835d0f7/alembic-1.18.4-py3-none-any.whl (263 kB)
+#10 8.168 Collecting aiosqlite>=0.19.0 (from -r requirements.txt (line 13))
+#10 8.223   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl (17 kB)
+#10 8.293 Collecting psycopg>=3.1.18 (from psycopg[binary]>=3.1.18->-r requirements.txt (line 14))
+#10 8.346   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/c8/5b/181e2e3becb7672b502f0ed7f16ed7352aca7c109cfb94cf3878a9186db9/psycopg-3.3.3-py3-none-any.whl (212 kB)
+#10 8.444 Collecting playwright>=1.40.0 (from -r requirements.txt (line 16))
+#10 8.493   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f1/af/009958cbf23fac551a940d34e3206e6c7eed2b8c940d0c3afd1feb0b0589/playwright-1.58.0-py3-none-manylinux1_x86_64.whl (46.2 MB)
+#10 10.49      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.2/46.2 MB 23.2 MB/s  0:00:01
+#10 10.71 Collecting rich (from curl_cffi>=0.14.0->-r requirements.txt (line 3))
+#10 10.77   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/14/25/b208c5683343959b670dc001595f2f3737e051da617f66c31f7c4fa93abc/rich-14.3.3-py3-none-any.whl (310 kB)
+#10 10.85 Collecting annotated-types>=0.6.0 (from pydantic>=2.0.0->-r requirements.txt (line 5))
+#10 10.90   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl (13 kB)
+#10 12.18 Collecting pydantic-core==2.41.5 (from pydantic>=2.0.0->-r requirements.txt (line 5))
+#10 12.23   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/c8/be/8fed28dd0a180dca19e72c233cbf58efa36df055e5b9d90d64fd1740b828/pydantic_core-2.41.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+#10 12.34      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 18.4 MB/s  0:00:00
+#10 12.40 Collecting typing-extensions>=4.14.1 (from pydantic>=2.0.0->-r requirements.txt (line 5))
+#10 12.44   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+#10 12.49 Collecting typing-inspection>=0.4.2 (from pydantic>=2.0.0->-r requirements.txt (line 5))
+#10 12.53   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+#10 12.59 Collecting python-dotenv>=0.21.0 (from pydantic-settings>=2.0.0->-r requirements.txt (line 6))
+#10 12.64   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+#10 12.73 Collecting starlette>=0.46.0 (from fastapi>=0.100.0->-r requirements.txt (line 7))
+#10 12.80   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0b/c9/584bc9651441b4ba60cc4d557d8a547b5aff901af35bda3a4ee30c819b82/starlette-1.0.0-py3-none-any.whl (72 kB)
+#10 12.87 Collecting annotated-doc>=0.0.2 (from fastapi>=0.100.0->-r requirements.txt (line 7))
+#10 12.93   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+#10 13.00 Collecting click>=7.0 (from uvicorn>=0.23.0->uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 13.06   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/98/78/01c019cdb5d6498122777c1a43056ebb3ebfeef2076d9d026bfe15583b2b/click-8.3.1-py3-none-any.whl (108 kB)
+#10 13.13 Collecting h11>=0.8 (from uvicorn>=0.23.0->uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 13.19   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl (37 kB)
+#10 13.32 Collecting MarkupSafe>=2.0 (from jinja2>=3.1.0->-r requirements.txt (line 9))
+#10 13.38   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/30/ac/0273f6fcb5f42e314c6d8cd99effae6a5354604d461b8d392b5ec9530a54/markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#10 13.61 Collecting greenlet>=1 (from sqlalchemy>=2.0.0->-r requirements.txt (line 11))
+#10 13.67   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/72/83/3e06a52aca8128bdd4dcd67e932b809e76a96ab8c232a8b025b2850264c5/greenlet-3.3.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (594 kB)
+#10 13.69      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 594.2/594.2 kB 44.9 MB/s  0:00:00
+#10 13.77 Collecting Mako (from alembic>=1.13.0->-r requirements.txt (line 12))
+#10 13.82   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/87/fb/99f81ac72ae23375f22b7afdb7642aba97c00a713c217124420147681a2f/mako-1.3.10-py3-none-any.whl (78 kB)
+#10 13.89 Collecting pyee<14,>=13 (from playwright>=1.40.0->-r requirements.txt (line 16))
+#10 13.94   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/a0/c4/b4d4827c93ef43c01f599ef31453ccc1c132b353284fc6c87d535c233129/pyee-13.0.1-py3-none-any.whl (15 kB)
+#10 14.21 Collecting psycopg-binary==3.3.3 (from psycopg[binary]>=3.1.18->-r requirements.txt (line 14))
+#10 14.26   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/de/2f/6c5c54b815edeb30a281cfcea96dc93b3bb6be939aea022f00cab7aa1420/psycopg_binary-3.3.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+#10 14.46      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 26.9 MB/s  0:00:00
+#10 14.53 Collecting anyio<5,>=3.6.2 (from starlette>=0.46.0->fastapi>=0.100.0->-r requirements.txt (line 7))
+#10 14.58   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/da/42/e921fccf5015463e32a3cf6ee7f980a6ed0f395ceeaa45060b61d86486c2/anyio-4.13.0-py3-none-any.whl (114 kB)
+#10 14.65 Collecting idna>=2.8 (from anyio<5,>=3.6.2->starlette>=0.46.0->fastapi>=0.100.0->-r requirements.txt (line 7))
+#10 14.70   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl (71 kB)
+#10 14.80 Collecting httptools>=0.6.3 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 14.86   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/cc/cc/10935db22fda0ee34c76f047590ca0a8bd9de531406a3ccb10a90e12ea21/httptools-0.7.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (456 kB)
+#10 14.98 Collecting pyyaml>=5.1 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 15.05   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/71/60/917329f640924b18ff085ab889a11c763e0b573da888e8404ff486657602/pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+#10 15.08      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 30.6 MB/s  0:00:00
+#10 15.17 Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 15.23   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/74/4f/256aca690709e9b008b7108bc85fba619a2bc37c6d80743d18abad16ee09/uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.8 MB)
+#10 15.39      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 25.6 MB/s  0:00:00
+#10 15.55 Collecting watchfiles>=0.20 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 15.60   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/af/b9/a419292f05e302dea372fa7e6fda5178a92998411f8581b9830d28fb9edb/watchfiles-1.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+#10 15.87 Collecting websockets>=10.4 (from uvicorn[standard]>=0.23.0->-r requirements.txt (line 8))
+#10 15.92   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d2/ae/0ee92b33087a33632f37a635e11e1d99d429d3d323329675a6022312aac2/websockets-16.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (184 kB)
+#10 16.00 Collecting markdown-it-py>=2.2.0 (from rich->curl_cffi>=0.14.0->-r requirements.txt (line 3))
+#10 16.05   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/94/54/e7d793b573f298e1c9013b8c4dade17d481164aa517d1d7148619c2cedbf/markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+#10 16.12 Collecting pygments<3.0.0,>=2.13.0 (from rich->curl_cffi>=0.14.0->-r requirements.txt (line 3))
+#10 16.17   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl (1.2 MB)
+#10 16.22      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 23.9 MB/s  0:00:00
+#10 16.28 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->curl_cffi>=0.14.0->-r requirements.txt (line 3))
+#10 16.34   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#10 16.41 Installing collected packages: websockets, uvloop, typing-extensions, pyyaml, python-multipart, python-dotenv, pygments, pycparser, psycopg-binary, mdurl, MarkupSafe, idna, httptools, h11, greenlet, click, certifi, annotated-types, annotated-doc, aiosqlite, uvicorn, typing-inspection, sqlalchemy, pyee, pydantic-core, psycopg, markdown-it-py, Mako, jinja2, cffi, anyio, watchfiles, starlette, rich, pydantic, playwright, alembic, pydantic-settings, fastapi, curl_cffi
+#10 22.38 
+#10 22.39 Successfully installed Mako-1.3.10 MarkupSafe-3.0.3 aiosqlite-0.22.1 alembic-1.18.4 annotated-doc-0.0.4 annotated-types-0.7.0 anyio-4.13.0 certifi-2026.2.25 cffi-2.0.0 click-8.3.1 curl_cffi-0.15.0 fastapi-0.135.3 greenlet-3.3.2 h11-0.16.0 httptools-0.7.1 idna-3.11 jinja2-3.1.6 markdown-it-py-4.0.0 mdurl-0.1.2 playwright-1.58.0 psycopg-3.3.3 psycopg-binary-3.3.3 pycparser-3.0 pydantic-2.12.5 pydantic-core-2.41.5 pydantic-settings-2.13.1 pyee-13.0.1 pygments-2.20.0 python-dotenv-1.2.2 python-multipart-0.0.22 pyyaml-6.0.3 rich-14.3.3 sqlalchemy-2.0.48 starlette-1.0.0 typing-extensions-4.15.0 typing-inspection-0.4.2 uvicorn-0.42.0 uvloop-0.22.1 watchfiles-1.1.1 websockets-16.0
+#10 22.39 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#10 24.59 Installing dependencies...
+#10 24.74 Get:1 http://mirrors.aliyun.com/debian trixie InRelease [140 kB]
+#10 24.79 Get:2 http://mirrors.aliyun.com/debian trixie-updates InRelease [47.3 kB]
+#10 24.83 Get:3 http://mirrors.aliyun.com/debian-security trixie-security InRelease [43.4 kB]
+#10 25.46 Get:4 http://mirrors.aliyun.com/debian trixie/main amd64 Packages [9671 kB]
+#10 26.13 Get:5 http://mirrors.aliyun.com/debian trixie-updates/main amd64 Packages [5412 B]
+#10 26.18 Get:6 http://mirrors.aliyun.com/debian-security trixie-security/main amd64 Packages [119 kB]
+#10 26.90 Fetched 10.0 MB in 2s (4399 kB/s)
+#10 26.90 Reading package lists...
+#10 27.46 Reading package lists...
+#10 28.04 Building dependency tree...
+#10 28.20 Reading state information...
+#10 28.46 libcairo2 is already the newest version (1.18.4-1+b1).
+#10 28.46 libcairo2 set to manually installed.
+#10 28.46 libcups2t64 is already the newest version (2.4.10-3+deb13u2).
+#10 28.46 libcups2t64 set to manually installed.
+#10 28.46 libdbus-1-3 is already the newest version (1.16.2-2).
+#10 28.46 libdbus-1-3 set to manually installed.
+#10 28.46 libdrm2 is already the newest version (2.4.124-2).
+#10 28.46 libdrm2 set to manually installed.
+#10 28.46 libgbm1 is already the newest version (25.0.7-2).
+#10 28.46 libgbm1 set to manually installed.
+#10 28.46 libglib2.0-0t64 is already the newest version (2.84.4-3~deb13u2).
+#10 28.46 libglib2.0-0t64 set to manually installed.
+#10 28.46 libpango-1.0-0 is already the newest version (1.56.3-1).
+#10 28.46 libpango-1.0-0 set to manually installed.
+#10 28.46 libx11-6 is already the newest version (2:1.8.12-1).
+#10 28.46 libx11-6 set to manually installed.
+#10 28.46 libxcb1 is already the newest version (1.17.0-2+b1).
+#10 28.46 libxcb1 set to manually installed.
+#10 28.46 libxdamage1 is already the newest version (1:1.1.6-1+b2).
+#10 28.46 libxdamage1 set to manually installed.
+#10 28.46 libxext6 is already the newest version (2:1.3.4-1+b3).
+#10 28.46 libxext6 set to manually installed.
+#10 28.46 libxfixes3 is already the newest version (1:6.0.0-2+b4).
+#10 28.46 libxfixes3 set to manually installed.
+#10 28.46 libxrandr2 is already the newest version (2:1.5.4-1+b3).
+#10 28.46 libxrandr2 set to manually installed.
+#10 28.46 xvfb is already the newest version (2:21.1.16-1.3+deb13u1).
+#10 28.46 libfontconfig1 is already the newest version (2.15.0-2.3).
+#10 28.46 libfontconfig1 set to manually installed.
+#10 28.46 libfreetype6 is already the newest version (2.13.3+dfsg-1+deb13u1).
+#10 28.46 libfreetype6 set to manually installed.
+#10 28.46 The following additional packages will be installed:
+#10 28.46   at-spi2-common libasound2-data
+#10 28.46 Suggested packages:
+#10 28.46   alsa-utils libasound2-plugins
+#10 28.46 Recommended packages:
+#10 28.46   fonts-ipafont-mincho fonts-liberation-sans-narrow fonts-tlwg-loma
+#10 28.46   alsa-ucm-conf alsa-topology-conf at-spi2-core
+#10 28.53 The following NEW packages will be installed:
+#10 28.53   at-spi2-common fonts-freefont-ttf fonts-ipafont-gothic fonts-liberation
+#10 28.53   fonts-noto-color-emoji fonts-tlwg-loma-otf fonts-unifont fonts-wqy-zenhei
+#10 28.53   libasound2-data libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64
+#10 28.54   libatspi2.0-0t64 libnspr4 libnss3 libxcomposite1 libxkbcommon0
+#10 28.54   xfonts-scalable
+#10 28.77 0 upgraded, 18 newly installed, 0 to remove and 0 not upgraded.
+#10 28.77 Need to get 33.0 MB of archives.
+#10 28.77 After this operation, 103 MB of additional disk space will be used.
+#10 28.77 Get:1 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-ipafont-gothic all 00303-23 [3515 kB]
+#10 28.93 Get:2 http://mirrors.aliyun.com/debian trixie/main amd64 at-spi2-common all 2.56.2-1+deb13u1 [171 kB]
+#10 29.26 Get:3 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5318 kB]
+#10 29.58 Get:4 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-liberation all 1:2.1.5-3 [1475 kB]
+#10 30.09 Get:5 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-noto-color-emoji all 2.051-0+deb13u1 [10.1 MB]
+#10 30.56 Get:6 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [147 kB]
+#10 30.73 Get:7 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-unifont all 1:15.1.01-1 [2211 kB]
+#10 31.17 Get:8 http://mirrors.aliyun.com/debian trixie/main amd64 fonts-wqy-zenhei all 0.9.45-8 [7479 kB]
+#10 31.44 Get:9 http://mirrors.aliyun.com/debian trixie/main amd64 libasound2-data all 1.2.14-1 [21.1 kB]
+#10 31.52 Get:10 http://mirrors.aliyun.com/debian trixie/main amd64 libasound2t64 amd64 1.2.14-1 [381 kB]
+#10 31.57 Get:11 http://mirrors.aliyun.com/debian trixie/main amd64 libatk1.0-0t64 amd64 2.56.2-1+deb13u1 [52.0 kB]
+#10 31.61 Get:12 http://mirrors.aliyun.com/debian trixie/main amd64 libatspi2.0-0t64 amd64 2.56.2-1+deb13u1 [80.7 kB]
+#10 31.65 Get:13 http://mirrors.aliyun.com/debian trixie/main amd64 libatk-bridge2.0-0t64 amd64 2.56.2-1+deb13u1 [68.4 kB]
+#10 31.69 Get:14 http://mirrors.aliyun.com/debian trixie/main amd64 libnspr4 amd64 2:4.36-1 [110 kB]
+#10 31.81 Get:15 http://mirrors.aliyun.com/debian trixie/main amd64 libnss3 amd64 2:3.110-1+deb13u1 [1395 kB]
+#10 31.88 Get:16 http://mirrors.aliyun.com/debian trixie/main amd64 libxcomposite1 amd64 1:0.4.6-1 [16.3 kB]
+#10 31.92 Get:17 http://mirrors.aliyun.com/debian trixie/main amd64 libxkbcommon0 amd64 1.7.0-2 [113 kB]
+#10 31.99 Get:18 http://mirrors.aliyun.com/debian trixie/main amd64 xfonts-scalable all 1:1.0.3-1.3 [306 kB]
+#10 32.14 debconf: unable to initialize frontend: Dialog
+#10 32.14 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#10 32.14 debconf: falling back to frontend: Readline
+#10 32.14 debconf: unable to initialize frontend: Readline
+#10 32.14 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 18.)
+#10 32.14 debconf: falling back to frontend: Teletype
+#10 32.15 debconf: unable to initialize frontend: Teletype
+#10 32.15 debconf: (This frontend requires a controlling tty.)
+#10 32.15 debconf: falling back to frontend: Noninteractive
+#10 32.77 Fetched 33.0 MB in 3s (9574 kB/s)
+#10 32.81 Selecting previously unselected package fonts-ipafont-gothic.
+#10 32.81 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 17735 files and directories currently installed.)
+#10 32.83 Preparing to unpack .../00-fonts-ipafont-gothic_00303-23_all.deb ...
+#10 32.85 Unpacking fonts-ipafont-gothic (00303-23) ...
+#10 33.06 Selecting previously unselected package at-spi2-common.
+#10 33.06 Preparing to unpack .../01-at-spi2-common_2.56.2-1+deb13u1_all.deb ...
+#10 33.07 Unpacking at-spi2-common (2.56.2-1+deb13u1) ...
+#10 33.13 Selecting previously unselected package fonts-freefont-ttf.
+#10 33.13 Preparing to unpack .../02-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+#10 33.14 Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+#10 33.44 Selecting previously unselected package fonts-liberation.
+#10 33.44 Preparing to unpack .../03-fonts-liberation_1%3a2.1.5-3_all.deb ...
+#10 33.45 Unpacking fonts-liberation (1:2.1.5-3) ...
+#10 33.57 Selecting previously unselected package fonts-noto-color-emoji.
+#10 33.57 Preparing to unpack .../04-fonts-noto-color-emoji_2.051-0+deb13u1_all.deb ...
+#10 33.58 Unpacking fonts-noto-color-emoji (2.051-0+deb13u1) ...
+#10 33.97 Selecting previously unselected package fonts-tlwg-loma-otf.
+#10 33.98 Preparing to unpack .../05-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+#10 33.98 Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+#10 34.07 Selecting previously unselected package fonts-unifont.
+#10 34.07 Preparing to unpack .../06-fonts-unifont_1%3a15.1.01-1_all.deb ...
+#10 34.08 Unpacking fonts-unifont (1:15.1.01-1) ...
+#10 34.32 Selecting previously unselected package fonts-wqy-zenhei.
+#10 34.33 Preparing to unpack .../07-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+#10 34.35 Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+#10 34.77 Selecting previously unselected package libasound2-data.
+#10 34.77 Preparing to unpack .../08-libasound2-data_1.2.14-1_all.deb ...
+#10 34.78 Unpacking libasound2-data (1.2.14-1) ...
+#10 34.87 Selecting previously unselected package libasound2t64:amd64.
+#10 34.87 Preparing to unpack .../09-libasound2t64_1.2.14-1_amd64.deb ...
+#10 34.88 Unpacking libasound2t64:amd64 (1.2.14-1) ...
+#10 34.96 Selecting previously unselected package libatk1.0-0t64:amd64.
+#10 34.96 Preparing to unpack .../10-libatk1.0-0t64_2.56.2-1+deb13u1_amd64.deb ...
+#10 34.97 Unpacking libatk1.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 35.04 Selecting previously unselected package libatspi2.0-0t64:amd64.
+#10 35.04 Preparing to unpack .../11-libatspi2.0-0t64_2.56.2-1+deb13u1_amd64.deb ...
+#10 35.05 Unpacking libatspi2.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 35.14 Selecting previously unselected package libatk-bridge2.0-0t64:amd64.
+#10 35.14 Preparing to unpack .../12-libatk-bridge2.0-0t64_2.56.2-1+deb13u1_amd64.deb ...
+#10 35.15 Unpacking libatk-bridge2.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 35.21 Selecting previously unselected package libnspr4:amd64.
+#10 35.21 Preparing to unpack .../13-libnspr4_2%3a4.36-1_amd64.deb ...
+#10 35.22 Unpacking libnspr4:amd64 (2:4.36-1) ...
+#10 35.28 Selecting previously unselected package libnss3:amd64.
+#10 35.28 Preparing to unpack .../14-libnss3_2%3a3.110-1+deb13u1_amd64.deb ...
+#10 35.29 Unpacking libnss3:amd64 (2:3.110-1+deb13u1) ...
+#10 35.42 Selecting previously unselected package libxcomposite1:amd64.
+#10 35.42 Preparing to unpack .../15-libxcomposite1_1%3a0.4.6-1_amd64.deb ...
+#10 35.43 Unpacking libxcomposite1:amd64 (1:0.4.6-1) ...
+#10 35.48 Selecting previously unselected package libxkbcommon0:amd64.
+#10 35.48 Preparing to unpack .../16-libxkbcommon0_1.7.0-2_amd64.deb ...
+#10 35.49 Unpacking libxkbcommon0:amd64 (1.7.0-2) ...
+#10 35.55 Selecting previously unselected package xfonts-scalable.
+#10 35.55 Preparing to unpack .../17-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+#10 35.56 Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+#10 35.63 Setting up fonts-noto-color-emoji (2.051-0+deb13u1) ...
+#10 35.65 Setting up fonts-wqy-zenhei (0.9.45-8) ...
+#10 35.71 Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+#10 35.74 Setting up libasound2-data (1.2.14-1) ...
+#10 35.78 Setting up libasound2t64:amd64 (1.2.14-1) ...
+#10 35.80 Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+#10 35.82 Setting up libnspr4:amd64 (2:4.36-1) ...
+#10 35.85 Setting up libatspi2.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 35.87 Setting up fonts-ipafont-gothic (00303-23) ...
+#10 35.89 update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+#10 35.90 Setting up at-spi2-common (2.56.2-1+deb13u1) ...
+#10 35.92 Setting up fonts-liberation (1:2.1.5-3) ...
+#10 35.94 Setting up libxcomposite1:amd64 (1:0.4.6-1) ...
+#10 35.96 Setting up xfonts-scalable (1:1.0.3-1.3) ...
+#10 35.99 note: /etc/X11/fonts/Type1/fonts-urw-base35.scale references nonexistent
+#10 35.99    font file 101; skipping
+#10 35.99 note: /etc/X11/fonts/Type1/xfonts-scalable.scale references nonexistent font
+#10 35.99    file 33; skipping
+#10 35.99 note: /etc/X11/fonts/Type1/xfonts-scalable.scale references nonexistent font
+#10 35.99    file cursor.pfa; skipping
+#10 36.05 Setting up fonts-unifont (1:15.1.01-1) ...
+#10 36.07 Setting up libxkbcommon0:amd64 (1.7.0-2) ...
+#10 36.09 Setting up libatk1.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 36.11 Setting up libnss3:amd64 (2:3.110-1+deb13u1) ...
+#10 36.13 Setting up libatk-bridge2.0-0t64:amd64 (2.56.2-1+deb13u1) ...
+#10 36.15 Processing triggers for libc-bin (2.41-12+deb13u2) ...
+#10 36.18 Processing triggers for fontconfig (2.15.0-2.3) ...
+#10 36.41 Downloading Chrome for Testing 145.0.7632.6 (playwright chromium v1208) from https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 36.57 (node:335) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+#10 36.57 (Use `node --trace-deprecation ...` to show where the warning was created)
+#10 36.99 Error: Download failed: server returned code 404 body '<?xml version="1.0" encoding="UTF-8"?>
+#10 36.99 <Error>
+#10 36.99   <Code>NoSuchKey</Code>
+#10 36.99   <Message>The specified key does not exist.</Message>
+#10 36.99   <RequestId>69CFC6CF16458332331C34EF</RequestId>
+#10 36.99   <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+#10 36.99   <Key>binaries/playwright/145.0.7632.6/linux64/chrome-linux64.zip</Key>
+#10 36.99   <EC>0026-00000001</EC>
+#10 36.99   <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+#10 36.99 </Error>
+#10 36.99 '. URL: https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 36.99     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+#10 36.99     at IncomingMessage.emit (node:events:520:35)
+#10 36.99     at endReadableNT (node:internal/streams/readable:1701:12)
+#10 36.99     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+#10 37.00 Downloading Chrome for Testing 145.0.7632.6 (playwright chromium v1208) from https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 37.16 (node:346) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+#10 37.16 (Use `node --trace-deprecation ...` to show where the warning was created)
+#10 37.57 Error: Download failed: server returned code 404 body '<?xml version="1.0" encoding="UTF-8"?>
+#10 37.57 <Error>
+#10 37.57   <Code>NoSuchKey</Code>
+#10 37.57   <Message>The specified key does not exist.</Message>
+#10 37.57   <RequestId>69CFC6D0BFF5A23532800930</RequestId>
+#10 37.57   <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+#10 37.57   <Key>binaries/playwright/145.0.7632.6/linux64/chrome-linux64.zip</Key>
+#10 37.57   <EC>0026-00000001</EC>
+#10 37.57   <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+#10 37.57 </Error>
+#10 37.57 '. URL: https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 37.57     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+#10 37.57     at IncomingMessage.emit (node:events:520:35)
+#10 37.57     at endReadableNT (node:internal/streams/readable:1701:12)
+#10 37.57     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+#10 37.58 Downloading Chrome for Testing 145.0.7632.6 (playwright chromium v1208) from https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 37.72 (node:357) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+#10 37.72 (Use `node --trace-deprecation ...` to show where the warning was created)
+#10 37.99 Error: Download failed: server returned code 404 body '<?xml version="1.0" encoding="UTF-8"?>
+#10 37.99 <Error>
+#10 37.99   <Code>NoSuchKey</Code>
+#10 37.99   <Message>The specified key does not exist.</Message>
+#10 37.99   <RequestId>69CFC6D0BFF5A23532800930</RequestId>
+#10 37.99   <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+#10 37.99   <Key>binaries/playwright/145.0.7632.6/linux64/chrome-linux64.zip</Key>
+#10 37.99   <EC>0026-00000001</EC>
+#10 37.99   <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+#10 37.99 </Error>
+#10 37.99 '. URL: https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 37.99     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+#10 37.99     at IncomingMessage.emit (node:events:520:35)
+#10 37.99     at endReadableNT (node:internal/streams/readable:1701:12)
+#10 37.99     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+#10 38.00 Downloading Chrome for Testing 145.0.7632.6 (playwright chromium v1208) from https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 38.09 (node:368) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+#10 38.09 (Use `node --trace-deprecation ...` to show where the warning was created)
+#10 38.36 Error: Download failed: server returned code 404 body '<?xml version="1.0" encoding="UTF-8"?>
+#10 38.36 <Error>
+#10 38.36   <Code>NoSuchKey</Code>
+#10 38.36   <Message>The specified key does not exist.</Message>
+#10 38.36   <RequestId>69CFC6D0BFF5A23532800930</RequestId>
+#10 38.36   <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+#10 38.36   <Key>binaries/playwright/145.0.7632.6/linux64/chrome-linux64.zip</Key>
+#10 38.36   <EC>0026-00000001</EC>
+#10 38.36   <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+#10 38.36 </Error>
+#10 38.36 '. URL: https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 38.36     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+#10 38.36     at IncomingMessage.emit (node:events:520:35)
+#10 38.36     at endReadableNT (node:internal/streams/readable:1701:12)
+#10 38.36     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+#10 38.37 Downloading Chrome for Testing 145.0.7632.6 (playwright chromium v1208) from https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 38.49 (node:379) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+#10 38.49 (Use `node --trace-deprecation ...` to show where the warning was created)
+#10 38.78 Error: Download failed: server returned code 404 body '<?xml version="1.0" encoding="UTF-8"?>
+#10 38.78 <Error>
+#10 38.78   <Code>NoSuchKey</Code>
+#10 38.78   <Message>The specified key does not exist.</Message>
+#10 38.78   <RequestId>69CFC6D1B36EBB35304CF22E</RequestId>
+#10 38.78   <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+#10 38.78   <Key>binaries/playwright/145.0.7632.6/linux64/chrome-linux64.zip</Key>
+#10 38.78   <EC>0026-00000001</EC>
+#10 38.78   <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+#10 38.78 </Error>
+#10 38.78 '. URL: https://npmmirror.com/mirrors/playwright//145.0.7632.6/linux64/chrome-linux64.zip
+#10 38.78     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+#10 38.78     at IncomingMessage.emit (node:events:520:35)
+#10 38.78     at endReadableNT (node:internal/streams/readable:1701:12)
+#10 38.78     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+#10 38.79 Failed to install browsers
+#10 38.79 Error: Failed to download Chrome for Testing 145.0.7632.6 (playwright chromium v1208), caused by
+#10 38.79 Error: Download failure, code=1
+#10 38.79     at ChildProcess.<anonymous> (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/browserFetcher.js:96:32)
+#10 38.79     at ChildProcess.emit (node:events:508:28)
+#10 38.79     at ChildProcess._handle.onexit (node:internal/child_process:294:12)
+#10 ERROR: process "/bin/sh -c pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple     && pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple     && env PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/ python -m playwright install --with-deps chromium" did not complete successfully: exit code: 1
+------
+ > [5/8] RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple     && pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple     && env PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/ python -m playwright install --with-deps chromium:
+38.78     at IncomingMessage.handleError (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/oopDownloadBrowserMain.js:58:23)
+38.78     at IncomingMessage.emit (node:events:520:35)
+38.78     at endReadableNT (node:internal/streams/readable:1701:12)
+38.78     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+38.79 Failed to install browsers
+38.79 Error: Failed to download Chrome for Testing 145.0.7632.6 (playwright chromium v1208), caused by
+38.79 Error: Download failure, code=1
+38.79     at ChildProcess.<anonymous> (/usr/local/lib/python3.11/site-packages/playwright/driver/package/lib/server/registry/browserFetcher.js:96:32)
+38.79     at ChildProcess.emit (node:events:508:28)
+38.79     at ChildProcess._handle.onexit (node:internal/child_process:294:12)
+------
+Dockerfile:37
+
+--------------------
+
+  36 |     COPY requirements.txt .
+
+  37 | >>> RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple \
+
+  38 | >>>     && pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple \
+
+  39 | >>>     && env PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/ python -m playwright install --with-deps chromium
+
+  40 |     
+
+--------------------
+
+failed to solve: process "/bin/sh -c pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple     && pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple     && env PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/ python -m playwright install --with-deps chromium" did not complete successfully: exit code: 1
+

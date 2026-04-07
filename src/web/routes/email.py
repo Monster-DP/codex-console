@@ -106,6 +106,10 @@ def normalize_email_service_config(service_type: str, config: Optional[Dict[str,
         if normalized.get("default_domain") and not normalized.get("domain"):
             normalized["domain"] = normalized.pop("default_domain")
 
+    if service_type in {"duck_mail", "vmail"}:
+        if normalized.get("domain") and not normalized.get("default_domain"):
+            normalized["default_domain"] = normalized.pop("domain")
+
     if service_type == "cloudmail" and normalized.get("api_key") and not normalized.get("admin_password"):
         normalized["admin_password"] = normalized.pop("api_key")
 
@@ -204,6 +208,7 @@ async def get_email_services_stats():
             'imap_mail_count': 0,
             'cloudmail_count': 0,
             'luckmail_count': 0,
+            'vmail_count': 0,
             'tempmail_available': tempmail_enabled or yyds_enabled,
             'yyds_mail_available': yyds_enabled,
             'enabled_count': enabled_count
@@ -230,6 +235,8 @@ async def get_email_services_stats():
                 stats['cloudmail_count'] = count
             elif service_type == 'luckmail':
                 stats['luckmail_count'] = count
+            elif service_type == 'vmail':
+                stats['vmail_count'] = count
 
         return stats
 
@@ -348,6 +355,20 @@ async def get_service_types():
                     {"name": "email_type", "label": "邮箱类型", "required": False, "default": "ms_graph"},
                     {"name": "preferred_domain", "label": "优先域名", "required": False, "placeholder": "outlook.com"},
                     {"name": "poll_interval", "label": "轮询间隔(秒)", "required": False, "default": 3.0},
+                ]
+            },
+            {
+                "value": "vmail",
+                "label": "Vmail",
+                "description": "Vmail.dev 临时邮箱服务，使用 API Key 创建 mailbox 并轮询邮件",
+                "config_fields": [
+                    {"name": "base_url", "label": "API 地址", "required": False, "default": "https://vmail.dev/api/v1"},
+                    {"name": "api_key", "label": "API Key", "required": True, "secret": True},
+                    {"name": "default_domain", "label": "默认域名", "required": False, "placeholder": "example.com"},
+                    {"name": "expires_in", "label": "过期时间(秒)", "required": False, "default": 86400},
+                    {"name": "timeout", "label": "超时时间", "required": False, "default": 30},
+                    {"name": "max_retries", "label": "最大重试次数", "required": False, "default": 3},
+                    {"name": "poll_interval", "label": "轮询间隔(秒)", "required": False, "default": 3},
                 ]
             }
         ]

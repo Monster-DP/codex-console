@@ -33,6 +33,7 @@ let availableServices = {
     cloudmail: { available: false, services: [] },
     duck_mail: { available: false, services: [] },
     luckmail: { available: false, services: [] },
+    vmail: { available: false, services: [] },
     freemail: { available: false, services: [] },
     imap_mail: { available: false, services: [] }
 };
@@ -498,6 +499,23 @@ function updateEmailServiceOptions() {
         select.appendChild(optgroup);
     }
 
+    // Vmail
+    if (availableServices.vmail && availableServices.vmail.available) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = `📬 Vmail (${availableServices.vmail.count} 个服务)`;
+
+        availableServices.vmail.services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = `vmail:${service.id}`;
+            option.textContent = service.name + (service.default_domain ? ` (@${service.default_domain})` : '');
+            option.dataset.type = 'vmail';
+            option.dataset.serviceId = service.id;
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+    }
+
     // Freemail
     if (availableServices.freemail && availableServices.freemail.available) {
         const optgroup = document.createElement('optgroup');
@@ -590,6 +608,11 @@ function handleServiceChange(e) {
         const service = availableServices.luckmail.services.find(s => s.id == id);
         if (service) {
             addLog('info', `[系统] 已选择 LuckMail 服务: ${service.name}`);
+        }
+    } else if (type === 'vmail') {
+        const service = availableServices.vmail.services.find(s => s.id == id);
+        if (service) {
+            addLog('info', `[系统] 已选择 Vmail 服务: ${service.name}`);
         }
     } else if (type === 'freemail') {
         const service = availableServices.freemail.services.find(s => s.id == id);
@@ -1334,8 +1357,9 @@ function connectWebSocket(taskUuid) {
                             // 刷新账号列表
                             loadRecentAccounts();
                         } else if (data.status === 'failed') {
-                            addLog('error', '[错误] 注册失败');
-                            toast.error('注册失败');
+                            const failureMessage = data.error || data.message || '未知错误';
+                            addLog('error', `[错误] 注册失败: ${failureMessage}`);
+                            toast.error(`注册失败: ${data.error || data.message || '未知错误'}`);
                         } else if (data.status === 'cancelled' || data.status === 'cancelling') {
                             addLog('warning', '[警告] 任务已取消');
                         }
@@ -1568,8 +1592,9 @@ function startLogPolling(taskUuid) {
                         // 刷新账号列表
                         loadRecentAccounts();
                     } else if (data.status === 'failed') {
-                        addLog('error', '[错误] 注册失败');
-                        toast.error('注册失败');
+                        const failureMessage = data.error || data.message || '未知错误';
+                        addLog('error', `[错误] 注册失败: ${failureMessage}`);
+                        toast.error(`注册失败: ${data.error || data.message || '未知错误'}`);
                     } else if (data.status === 'cancelled') {
                         addLog('warning', '[警告] 任务已取消');
                     }

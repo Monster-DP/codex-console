@@ -62,6 +62,7 @@ class EmailServiceType(str, Enum):
     FREEMAIL = "freemail"
     IMAP_MAIL = "imap_mail"
     CLOUDMAIL = "cloudmail"
+    VMAIL = "vmail"
 
 
 def normalize_account_label(value: str) -> str:
@@ -214,6 +215,15 @@ EMAIL_SERVICE_DEFAULTS = {
         "password": "",
         "timeout": 30,
         "max_retries": 3,
+    },
+    "vmail": {
+        "base_url": "https://vmail.dev/api/v1",
+        "api_key": "",
+        "default_domain": "",
+        "expires_in": 86400,
+        "timeout": 30,
+        "max_retries": 3,
+        "poll_interval": 3,
     }
 }
 

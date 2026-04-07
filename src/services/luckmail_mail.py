@@ -51,7 +51,13 @@ def _load_luckmail_client_class():
             return LuckMailClient
         except Exception:
             continue
-    return None
+
+    try:
+        from .luckmail_sdk_builtin import LuckMailClient
+
+        return LuckMailClient
+    except Exception:
+        return None
 
 
 class LuckMailService(BaseEmailService):
@@ -109,6 +115,7 @@ class LuckMailService(BaseEmailService):
             self.client = client_cls(
                 base_url=self.config["base_url"],
                 api_key=self.config["api_key"],
+                timeout=int(self.config.get("timeout") or 30),
             )
         except Exception as exc:
             raise ValueError(f"初始化 LuckMail 客户端失败: {exc}")
@@ -657,6 +664,84 @@ class LuckMailService(BaseEmailService):
             "source": source,
         }
 
+    def _get_project_catalog(self) -> List[Any]:
+        getter = getattr(getattr(self.client, "user", None), "get_projects", None)
+        if not callable(getter):
+            return []
+        try:
+            result = getter(page=1, page_size=100)
+        except TypeError:
+            result = getter()
+        except Exception as exc:
+            logger.warning(f"LuckMail 拉取项目库存失败: {exc}")
+            return []
+
+        items = getattr(result, "list", None)
+        if isinstance(items, list):
+            return items
+        if isinstance(result, dict):
+            raw_items = result.get("list")
+            if isinstance(raw_items, list):
+                return raw_items
+        return []
+
+    def _get_project_stock_snapshot(self, project_code: str, email_type: str) -> Optional[Dict[str, Any]]:
+        project_code_norm = str(project_code or "").strip().lower()
+        email_type_norm = str(email_type or "").strip().lower()
+        if not project_code_norm or not email_type_norm:
+            return None
+
+        for project in self._get_project_catalog():
+            code = str(self._extract_field(project, "code") or "").strip().lower()
+            if code != project_code_norm:
+                continue
+
+            project_name = str(self._extract_field(project, "name") or project_code or "").strip() or project_code
+            prices = self._extract_field(project, "prices") or []
+            summary: List[Dict[str, Any]] = []
+            matched_stock: Optional[int] = None
+
+            if isinstance(prices, list):
+                for price in prices:
+                    price_email_type = str(self._extract_field(price, "email_type") or "").strip().lower()
+                    stock_raw = self._extract_field(price, "stock")
+                    try:
+                        stock = int(stock_raw)
+                    except Exception:
+                        try:
+                            stock = int(float(stock_raw))
+                        except Exception:
+                            stock = 0
+                    if price_email_type:
+                        summary.append({"email_type": price_email_type, "stock": stock})
+                    if price_email_type == email_type_norm:
+                        matched_stock = stock
+
+            return {
+                "project_code": project_code_norm,
+                "project_name": project_name,
+                "email_type": email_type_norm,
+                "stock": matched_stock,
+                "summary": summary,
+            }
+
+        return None
+
+    def _ensure_project_stock_available(self, project_code: str, email_type: str) -> None:
+        snapshot = self._get_project_stock_snapshot(project_code=project_code, email_type=email_type)
+        if not snapshot:
+            return
+
+        stock = snapshot.get("stock")
+        if stock is None or int(stock) > 0:
+            return
+
+        project_name = str(snapshot.get("project_name") or project_code or "").strip() or str(project_code or "").strip()
+        raise EmailServiceError(
+            f"LuckMail 项目 {project_code} 的邮箱类型 {email_type} 当前库存为 0（项目 {project_name}）。"
+            "平台价格页显示的可能是全站库存，请更换 project_code 或等待补货"
+        )
+
     def _pick_reusable_purchase_inbox(
         self,
         project_code: str,
@@ -733,6 +818,7 @@ class LuckMailService(BaseEmailService):
         preferred_domain: str,
         specified_email: Optional[str] = None,
     ) -> Dict[str, Any]:
+        self._ensure_project_stock_available(project_code=project_code, email_type=email_type)
         try:
             kwargs: Dict[str, Any] = {
                 "project_code": project_code,
@@ -801,6 +887,7 @@ class LuckMailService(BaseEmailService):
         email_type: str,
         preferred_domain: str,
     ) -> Dict[str, Any]:
+        self._ensure_project_stock_available(project_code=project_code, email_type=email_type)
         try:
             kwargs: Dict[str, Any] = {
                 "project_code": project_code,

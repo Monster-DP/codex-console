@@ -333,6 +333,9 @@ def _normalize_email_service_config(
     elif service_type == EmailServiceType.DUCK_MAIL:
         if 'domain' in normalized and 'default_domain' not in normalized:
             normalized['default_domain'] = normalized.pop('domain')
+    elif service_type == EmailServiceType.VMAIL:
+        if 'domain' in normalized and 'default_domain' not in normalized:
+            normalized['default_domain'] = normalized.pop('domain')
     elif service_type == EmailServiceType.LUCKMAIL:
         if 'domain' in normalized and 'preferred_domain' not in normalized:
             normalized['preferred_domain'] = normalized.pop('domain')
@@ -588,6 +591,23 @@ def _run_sync_registration_task(task_uuid: str, email_service_type: str, proxy: 
                         config = _normalize_email_service_config(service_type, email_service_config or {}, actual_proxy_url)
                         if not config.get("api_key"):
                             raise ValueError("没有可用的 LuckMail 服务，请先在邮箱服务中添加并填写 API Key")
+                elif service_type == EmailServiceType.VMAIL:
+                    from ...database.models import EmailService as EmailServiceModel
+
+                    db_service = db.query(EmailServiceModel).filter(
+                        EmailServiceModel.service_type == "vmail",
+                        EmailServiceModel.enabled == True
+                    ).order_by(EmailServiceModel.priority.asc()).first()
+
+                    if db_service and db_service.config:
+                        config = _normalize_email_service_config(service_type, db_service.config, actual_proxy_url)
+                        crud.update_registration_task(db, task_uuid, email_service_id=db_service.id)
+                        logger.info(f"使用数据库 Vmail 服务: {db_service.name}")
+                    else:
+                        config = _normalize_email_service_config(service_type, email_service_config or {}, actual_proxy_url)
+                        missing_keys = [key for key in ("base_url", "api_key") if not config.get(key)]
+                        if missing_keys:
+                            raise ValueError("没有可用的 Vmail 服务，请先在邮箱服务页面添加服务并填写 API Key")
                 else:
                     config = email_service_config or {}
 
@@ -782,6 +802,18 @@ def _run_sync_registration_task(task_uuid: str, email_service_type: str, proxy: 
                 if task_manager.is_cancelled(task_uuid):
                     _mark_cancelled("任务在注册失败分支检测到取消请求")
                     return
+                metadata = result.metadata if isinstance(result.metadata, dict) else {}
+                metadata["account_label"] = account_label
+                metadata["role_tag"] = role_tag
+                metadata["registration_type"] = role_tag
+                result.metadata = metadata
+
+                if metadata.get("persist_account_on_failure") and result.email:
+                    try:
+                        engine.save_to_database(result, account_label=account_label, role_tag=role_tag)
+                    except Exception as save_err:
+                        logger.warning(f"失败结果落库异常: {save_err}")
+
                 if callable(marker) and result.email:
                     try:
                         marker(
@@ -798,11 +830,12 @@ def _run_sync_registration_task(task_uuid: str, email_service_type: str, proxy: 
                     db, task_uuid,
                     status="failed",
                     completed_at=utcnow_naive(),
-                    error_message=result.error_message
+                    error_message=result.error_message,
+                    result=result.to_dict(),
                 )
 
                 # 更新 TaskManager 状态
-                task_manager.update_status(task_uuid, "failed", error=result.error_message)
+                task_manager.update_status(task_uuid, "failed", error=result.error_message, email=result.email)
 
                 logger.warning(f"注册任务失败: {task_uuid}, 原因: {result.error_message}")
 
@@ -1841,6 +1874,11 @@ async def get_available_email_services():
             "available": False,
             "count": 0,
             "services": []
+        },
+        "vmail": {
+            "available": False,
+            "count": 0,
+            "services": []
         }
     }
 
@@ -2036,6 +2074,24 @@ async def get_available_email_services():
 
         result["luckmail"]["count"] = len(luckmail_services)
         result["luckmail"]["available"] = len(luckmail_services) > 0
+
+        vmail_services = db.query(EmailServiceModel).filter(
+            EmailServiceModel.service_type == "vmail",
+            EmailServiceModel.enabled == True
+        ).order_by(EmailServiceModel.priority.asc()).all()
+
+        for service in vmail_services:
+            config = service.config or {}
+            result["vmail"]["services"].append({
+                "id": service.id,
+                "name": service.name,
+                "type": "vmail",
+                "default_domain": config.get("default_domain"),
+                "priority": service.priority
+            })
+
+        result["vmail"]["count"] = len(vmail_services)
+        result["vmail"]["available"] = len(vmail_services) > 0
 
     return result
 

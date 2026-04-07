@@ -156,6 +156,7 @@ class RegistrationEngine:
         self._create_account_workspace_id: Optional[str] = None
         self._create_account_account_id: Optional[str] = None
         self._create_account_refresh_token: Optional[str] = None
+        self._create_account_succeeded: bool = False
         self._last_validate_otp_continue_url: Optional[str] = None
         self._last_validate_otp_workspace_id: Optional[str] = None
         self._last_register_password_error: Optional[str] = None
@@ -263,6 +264,83 @@ class RegistrationEngine:
             return "; ".join(f"{k}={v}" for k, v in pairs if k)
         except Exception:
             return ""
+
+    def _update_result_metadata(self, result: RegistrationResult, **kwargs) -> Dict[str, Any]:
+        metadata = dict(result.metadata or {})
+        for key, value in kwargs.items():
+            if value is not None:
+                metadata[key] = value
+        result.metadata = metadata
+        return metadata
+
+    def _hydrate_partial_registration_result(self, result: RegistrationResult, workspace_id: str = "") -> None:
+        """在注册收尾失败时，尽量保留已拿到的账号现场。"""
+        result.email = str(result.email or self.email or "").strip()
+        result.password = str(result.password or self.password or "").strip()
+
+        cookie_device_id = ""
+        try:
+            cookie_device_id = str(self.session.cookies.get("oai-did") or "").strip() if self.session else ""
+        except Exception:
+            cookie_device_id = ""
+
+        result.device_id = str(result.device_id or self.device_id or cookie_device_id or "").strip()
+        result.source = result.source or ("login" if self._is_existing_account else "register")
+
+        if not result.account_id:
+            result.account_id = str(self._create_account_account_id or "").strip()
+        if not result.workspace_id:
+            result.workspace_id = str(
+                workspace_id
+                or self._last_validate_otp_workspace_id
+                or self._create_account_workspace_id
+                or ""
+            ).strip()
+        if not result.refresh_token:
+            result.refresh_token = str(self._create_account_refresh_token or "").strip()
+
+    def _mark_registration_gate_failure(
+        self,
+        result: RegistrationResult,
+        gate_url: str = "",
+        workspace_id: str = "",
+    ) -> None:
+        self._hydrate_partial_registration_result(result, workspace_id=workspace_id)
+
+        gate_url = str(
+            gate_url
+            or self._last_validate_otp_continue_url
+            or self._create_account_continue_url
+            or ""
+        ).strip()
+        gate_url_lower = gate_url.lower()
+
+        if "auth.openai.com/add-phone" in gate_url_lower:
+            gate_name = "add-phone"
+            manual_action_type = "phone_verification"
+            error_message = "命中 add-phone 风控页，账号已创建但需人工补手机验证"
+        elif "auth.openai.com/about-you" in gate_url_lower:
+            gate_name = "about-you"
+            manual_action_type = "complete_profile"
+            error_message = "命中 about-you 注册门页，账号已创建但需人工补全资料"
+        else:
+            gate_name = "registration-gate"
+            manual_action_type = "manual_review"
+            error_message = "命中注册门页，账号已创建但需人工补全后续验证"
+
+        result.error_message = error_message
+        self._update_result_metadata(
+            result,
+            registration_gate=gate_name,
+            registration_gate_url=gate_url,
+            manual_action_required=True,
+            manual_action_type=manual_action_type,
+            persist_account_on_failure=True,
+            account_created=bool(self._create_account_succeeded),
+            has_access_token=bool(result.access_token),
+            has_session_token=bool(result.session_token),
+            has_refresh_token=bool(result.refresh_token),
+        )
 
     @staticmethod
     def _extract_session_token_from_cookie_jar(cookie_jar) -> str:
@@ -1476,14 +1554,18 @@ class RegistrationEngine:
             result.workspace_id = workspace_id
 
         continue_url = ""
+        gate_continue_url = ""
         otp_continue = str(self._last_validate_otp_continue_url or "").strip()
         if otp_continue and _is_registration_gate_url(otp_continue):
             self._log("OTP 返回 continue_url 指向注册门页（about-you/add-phone），本轮收尾忽略该地址", "warning")
+            gate_continue_url = otp_continue
             otp_continue = ""
 
         cached_continue = str(self._create_account_continue_url or "").strip()
         if cached_continue and _is_registration_gate_url(cached_continue):
             self._log("create_account 缓存 continue_url 指向注册门页（about-you/add-phone），本轮收尾忽略该地址", "warning")
+            if not gate_continue_url:
+                gate_continue_url = cached_continue
             cached_continue = ""
 
         if workspace_id:
@@ -1491,6 +1573,24 @@ class RegistrationEngine:
             continue_url = str(self._select_workspace(workspace_id) or "").strip()
             if not continue_url:
                 self._log("workspace/select 未返回 continue_url，尝试 OAuth authorize 兜底", "warning")
+
+        if (
+            (not continue_url)
+            and gate_continue_url
+            and (not self._is_existing_account)
+            and self._create_account_succeeded
+        ):
+            self._mark_registration_gate_failure(result, gate_url=gate_continue_url, workspace_id=workspace_id)
+            self._log("当前 continue_url 全部落在注册门页，停止继续追链并保留现场等待人工补验证", "warning")
+            return False
+
+        if not continue_url and otp_continue:
+            continue_url = otp_continue
+            self._log("使用 OTP 返回 continue_url 继续授权链路", "warning")
+
+        if not continue_url and cached_continue:
+            continue_url = cached_continue
+            self._log("使用 create_account 缓存 continue_url 作为兜底", "warning")
 
         if not continue_url:
             oauth_start_url = str(
@@ -1505,14 +1605,6 @@ class RegistrationEngine:
             if oauth_start_url:
                 continue_url = oauth_start_url
                 self._log("使用 OAuth authorize URL 作为兜底 continue_url", "warning")
-
-        if not continue_url and otp_continue:
-            continue_url = otp_continue
-            self._log("使用 OTP 返回 continue_url 继续授权链路", "warning")
-
-        if not continue_url and cached_continue:
-            continue_url = cached_continue
-            self._log("使用 create_account 缓存 continue_url 作为兜底", "warning")
 
         if not continue_url:
             result.error_message = "获取 continue_url 失败"
@@ -1546,6 +1638,11 @@ class RegistrationEngine:
                 result.device_id = result.device_id or str(self.device_id or "")
                 self._log("回调链路未命中且未抓到 Access Token，但账号已创建成功；按注册成功收尾（token 待后续补齐）", "warning")
                 return True
+
+            if (not self._is_existing_account) and gate_continue_url and self._create_account_succeeded:
+                self._mark_registration_gate_failure(result, gate_url=gate_continue_url, workspace_id=workspace_id)
+                self._log("回调链路未命中，且注册门页仍在阻断；保留现场等待人工补验证", "warning")
+                return False
 
             result.error_message = "跟随重定向链失败"
             return False
@@ -2396,6 +2493,8 @@ class RegistrationEngine:
                 self._log(f"账户创建失败: {response.text[:200]}", "warning")
                 return False
 
+            self._create_account_succeeded = True
+
             try:
                 data = response.json() or {}
                 continue_url = str(data.get("continue_url") or "").strip()
@@ -2731,6 +2830,7 @@ class RegistrationEngine:
             self._create_account_workspace_id = None
             self._create_account_account_id = None
             self._create_account_refresh_token = None
+            self._create_account_succeeded = False
             self._last_validate_otp_continue_url = None
             self._last_validate_otp_workspace_id = None
 
@@ -3056,12 +3156,21 @@ class RegistrationEngine:
         Returns:
             是否保存成功
         """
-        if not result.success:
+        metadata = dict(result.metadata or {})
+        persist_failed_result = bool(metadata.get("persist_account_on_failure"))
+        if (not result.success) and (not persist_failed_result):
+            return False
+
+        if not result.email:
             return False
 
         try:
             # 获取默认 client_id
             settings = get_settings()
+            if result.error_message and not metadata.get("last_error"):
+                metadata["last_error"] = result.error_message
+
+            account_status = AccountStatus.ACTIVE.value if result.success else AccountStatus.FAILED.value
 
             with get_db() as db:
                 # 保存账户信息
@@ -3080,7 +3189,8 @@ class RegistrationEngine:
                     refresh_token=result.refresh_token,
                     id_token=result.id_token,
                     proxy_used=self.proxy_url,
-                    extra_data=result.metadata,
+                    extra_data=metadata,
+                    status=account_status,
                     source=result.source,
                     account_label=account_label,
                     role_tag=role_tag,
